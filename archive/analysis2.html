@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Page Title</title>
+    <style>
+        :root {
+            --percentage: 42%;
+        }
+
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-image: url('gojo_smurfcat.png');
+            /* Add this line */
+            background-size: cover;
+            /* Optional: Scale the image to cover the entire background */
+            background-repeat: no-repeat;
+            /* Optional: Prevent image repetition */
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.13);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .header button {
+            background-color: #ffffff;
+            color: #080710;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .circle {
+            width: 100px;
+            height: 100px;
+            background:
+                radial-gradient(closest-side, white 79%, transparent 80% 100%),
+                conic-gradient(yellow var(--percentage), yellowgreen 0);
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        ul {
+            background-color: rgba(0, 200, 0, 0.3);
+            padding: 0;
+            list-style: none;
+        }
+
+        li {
+            font-size: 18px;
+            margin: 2vh 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header" id="header">
+        <button class="create-class-button">
+            <i class="fa-solid fa-left-long"></i>
+            Back
+        </button>
+        <button class="logout-button">Logout</button>
+    </div>
+
+    <div class="container">
+        <ul>
+            <li><b>10</b> close call</li>
+            <li><b>Most frequent absent day:</b> Wednesday</li>
+            <li><b>Average present days per week:</b> 4.33</li>
+        </ul>
+        <div class="circle">
+            <progress value="42" min="0" max="100" style="visibility:hidden;height:0;width:0;">75%</progress>
+
+            42%
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        const root = document.querySelector(":root")
+
+        <!-- root.style.setProperty("--percentage", 69) -->
+    </script>
+</body>
+</html>
