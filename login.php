@@ -196,8 +196,9 @@ include("debug.php")
         debug_log("Username: $username");
         debug_log("Password: $password");
 
-        $sql = "SELECT id_pengguna FROM pengguna WHERE nama_pengguna='$username' AND kata_laluan='$password'";
-        $result = $conn->query($sql);
+        $sql = "SELECT id_pengguna FROM pengguna WHERE nama_pengguna=? AND kata_laluan=?";
+        $result = $conn->execute_query($sql, [$username, $password]);
+        // $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();

@@ -2,6 +2,7 @@
 session_start();
 include("database.php");
 include("debug.php");
+
 if (!isset($_SESSION['user_id'])) {
     debug_log("User not logged in");
     header("Location: login.php");
@@ -12,6 +13,30 @@ if (!isset($_GET['id'])) {
     header("Location: index.php");
     exit();
 }
+
+$students = array();
+
+$query = sprintf(
+    "SELECT id_pengguna as id, nama_pengguna as name FROM pengguna
+    WHERE id_pengguna IN (
+        SELECT id_pengguna FROM kelas_pengguna
+        WHERE id_kelas = %u and peranan != 'GURU'
+    )",
+    $_GET['id']
+);
+
+$result = $conn->query($query);
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $students[] = array(
+            'id' => $row['id'],
+            'name' => $row['name']
+        );
+    }
+}
+
+execute("const students = " . json_encode($students) . ";");
 ?>
 
 <!DOCTYPE html>
@@ -82,7 +107,7 @@ if (!isset($_GET['id'])) {
         }
 
         .content {
-            margin-top: 5vh;
+            margin-top: 20vh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -147,12 +172,79 @@ if (!isset($_GET['id'])) {
         .invitation {
             display: flex;
             justify-content: center;
+            margin-top: 30px;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        .wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: rgb(0, 0, 0);
+            /* Fallback color */
+            background-color: rgba(0, 0, 0, 0.4);
+            /* Black w/ opacity */
+        }
+
+        .invite-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* justify-content: center; */
+            background-color: #ffffff;
+            border: 2px #080710 solid;
+            border-radius: 10px;
+            padding: 20px;
+            width: 70vh;
+            height: 30vh;
+            padding: 5vh;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+            backdrop-filter: blur(10px);
+        }
+
+        .invite-box.dark-mode {
+            background-color: #26252C !important;
+        }
+
+        .close {
+            background-color: #ffffff;
+            color: #080710;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .invite-box.dark-mode .close {
+            background-color: #26252C !important;
+            color: #ffffff;
         }
 
         .input-container {
             display: flex;
             justify-content: center;
-            margin-top: 20vh;
         }
 
         .input-box {
@@ -199,7 +291,7 @@ if (!isset($_GET['id'])) {
             padding: 5px;
             position: absolute;
             z-index: 1;
-            top: 150%;
+            bottom: 150%;
             left: 50%;
             margin-left: -75px;
             opacity: 0;
@@ -209,97 +301,91 @@ if (!isset($_GET['id'])) {
         .tooltip .tooltiptext::after {
             content: "";
             position: absolute;
-            bottom: 100%;
+            top: 100%;
             left: 50%;
             margin-left: -5px;
             border-width: 5px;
             border-style: solid;
-            border-color: transparent transparent #555 transparent;
+            border-color: #555 transparent transparent transparent;
         }
 
         .tooltip:hover .tooltiptext {
             visibility: visible;
             opacity: 1;
         }
+
+        .users {
+            margin-top: 5vh;
+        }
+
+        .utils {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .utils .input-box {
+            height: auto !important;
+            margin-right: 10px;
+        }
+
+        .invite-popup-btn {
+            width: auto !important;
+        }
     </style>
 </head>
 
 <body>
-    <form class="input-container">
-        <input class="input-box" type="text" name="code" placeholder="Enter code">
-        <button class="submit-button" type="submit">Submit</button>
-    </form>
-
     <div class="header" id="header">
-        <button class="create-class-button">
+        <button class="create-class-button" onclick="history.back()">
             <i class="fa-solid fa-left-long"></i>
             Back
         </button>
 
-        <div class="invitation">
-            <input type="text" value="<?php
-                                        $query = "SELECT invite FROM kelas WHERE id_kelas = " . $_GET['id'];
-                                        $result = $conn->query($query);
-                                        $invite = $result->fetch_assoc()['invite'];
-
-                                        // debug_log($_SERVER['SERVER_ADDR']);
-                                        echo 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/' . 'invite.php?id=' . $invite;
-                                        ?>" id="invitation-link" class="input-box" readonly>
-
-            <div class="tooltip">
-                <button id="copy-button">
-                    <span class="tooltiptext" id="tooltip">Copy to clipboard</span>
-                    <i class="fa-solid fa-copy"></i>
-                </button>
-            </div>
-
-        </div>
+        <form class="input-container">
+            <input class="input-box" type="text" name="code" placeholder="Enter code">
+            <button class="submit-button" type="submit">Submit</button>
+        </form>
 
         <button class="logout-button">Logout</button>
     </div>
+
     <div class="content" id="content">
-        <?php
-        $query = sprintf(
-            "SELECT id_pengguna, nama_pengguna as name FROM pengguna
-            WHERE id_pengguna IN (
-                SELECT id_pengguna FROM kelas_pengguna
-                WHERE id_kelas = %u and peranan != 'GURU'
-            )",
-            $_GET['id']
-        );
+        <div class="utils">
+            <input class="input-box" id="search-user" type="text" placeholder="Search">
+            <button class="invite-popup-btn" id="invite-popup-btn">
+                <i class="fa-solid fa-user-plus"></i>
+            </button>
+        </div>
 
-        $result = $conn->query($query);
 
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                echo sprintf(
-                    "<label class='checkbox-container'>
-                        <button class='name-btn'>%s</button>
-                        <input type='checkbox'>
-                    </label>",
-                    $row['name']
-                );
-            }
-            $students = true;
-        } else {
-            echo "<p>No students in this class</p>";
-            $students = false;
-        }
-        ?>
+        <div class="users" id="users">
+
+        </div>
     </div>
 
-    <?php
-    if ($students) {
-        $code = `for (let element of content.children) {
-            const [nameBtn, checkbox] = element.children;
-
-            checkbox.addEventListener("click", () => {
-                nameBtn.classList.toggle("checked");
-            });
-        }`;
-        echo '<script>' . $code . '</script>';
-    }
-    ?>
+    <div class="wrapper hide">
+        <div class="invite-box" id="invite-box">
+            <button class="close" id="close">
+                <i class="fa-solid fa-x"></i>
+            </button>
+            <h2>Invite students to join this class!</h2>
+            <div class="invitation">
+                <input type="text" value="<?php
+                                            $query = "SELECT invite FROM kelas WHERE id_kelas = " . $_GET['id'];
+                                            $result = $conn->query($query);
+                                            $invite = $result->fetch_assoc()['invite'];
+                                            // debug_log($_SERVER['SERVER_ADDR']);
+                                            echo 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/' . 'invite.php?id=' . $invite;
+                                            ?>" id="invitation-link" class="input-box" readonly>
+                <div class="tooltip">
+                    <button id="copy-button">
+                        <span class="tooltiptext" id="tooltip">Copy to clipboard</span>
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <button class="dark-mode-toggle" id="darkModeToggle">
         <i class="fa-solid fa-moon fa-2xl" id="icon-toggle"></i>
@@ -308,6 +394,44 @@ if (!isset($_GET['id'])) {
     <script src="script.js"></script>
     <script>
         const copyBtn = document.getElementById("copy-button");
+        const close = document.getElementById("close");
+        const inviteBtn = document.getElementById("invite-popup-btn");
+        const users = document.getElementById("users");
+        const searchUser = document.getElementById("search-user");
+
+        for (let student of students) {
+            const label = document.createElement("label");
+            label.classList.add("checkbox-container");
+            label.id = student.id;
+
+            const nameBtn = document.createElement("button");
+            nameBtn.classList.add("name-btn");
+            nameBtn.innerHTML = student.name;
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+
+            label.appendChild(nameBtn);
+            label.appendChild(checkbox);
+
+            users.appendChild(label);
+
+            checkbox.addEventListener("click", () => {
+                nameBtn.classList.toggle("checked");
+            });
+        }
+
+        searchUser.oninput = () => {
+            const query = searchUser.value.toLowerCase();
+            for (let student of students) {
+                const label = document.getElementById(student.id);
+                if (student.name.toLowerCase().includes(query)) {
+                    label.classList.remove("hide");
+                } else {
+                    label.classList.add("hide");
+                }
+            }
+        }
 
         copyBtn.onclick = () => {
             let copyText = document.getElementById("invitation-link");
@@ -323,6 +447,14 @@ if (!isset($_GET['id'])) {
             let tooltip = document.getElementById("tooltip");
             tooltip.innerHTML = "Copy to clipboard";
         })
+
+        inviteBtn.onclick = () => {
+            document.querySelector(".wrapper").classList.remove("hide");
+        }
+
+        close.onclick = () => {
+            document.querySelector(".wrapper").classList.add("hide");
+        }
     </script>
 </body>
 
