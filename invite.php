@@ -8,10 +8,10 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$invite = $_GET['e'];
+$invite = $_GET['id'];
 $query = sprintf(
     "SELECT nama FROM kelas
-    WHERE nama = '%s'",
+    WHERE invite = '%s'",
     $invite
 );
 
