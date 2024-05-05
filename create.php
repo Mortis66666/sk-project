@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $class_name = $_POST['class-name'];
     $user_id = $_SESSION['user_id'];
 
-    $query = "INSERT INTO kelas (nama) VALUES ('$class_name')";
+    $query = "INSERT INTO kelas (nama, invite) VALUES ('$class_name', UUID())";
     $result = mysqli_query($conn, $query);
 
     if ($result) {

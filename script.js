@@ -17,10 +17,3 @@ darkModeToggle.addEventListener("click", () => {
         iconToggle.className = "dark-mode-icon fas fa-sun";
     }
 });
-
-for (let element of content.children) {
-    console.log(element.children[0]);
-    element.children[1].addEventListener("click", () => {
-        element.children[0].classList.toggle("checked");
-    });
-}
