@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id'])) {
     debug_log("User not logged in");
     header("Location: login.php");
     exit();
-}
+};
 ?>
 
 <!DOCTYPE html>
@@ -50,11 +50,19 @@ if (!isset($_SESSION['user_id'])) {
         <h1>Create Class</h1>
         <form action="create.php" method="post">
             <label for="class-name">Class Name:</label>
-            <input type="text" id="class-name" name="class-name" required>
+            <input type="text" id="class-name" name="class-name">
             <br>
             <button type="submit">Create</button>
         </form>
     </div>
+
+    <?php
+    if (isset($_SESSION['error'])) {
+        debug_log("Error: " . $_SESSION['error']);
+        execute("alert('" . $_SESSION['error'] . "')");
+        unset($_SESSION['error']);
+    }
+    ?>
 </body>
 
 </html>
@@ -64,26 +72,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $class_name = $_POST['class-name'];
     $user_id = $_SESSION['user_id'];
 
-    $query = "INSERT INTO kelas (nama, invite) VALUES ('$class_name', UUID())";
-    $result = mysqli_query($conn, $query);
+    function create_class($conn, $class_name, $user_id)
+    {
+        // Check if class name is empty
+        if (empty($class_name)) {
+            $_SESSION['error'] = "Nice try, but you cant create a class without a name!";
+            return;
+        }
 
-    if ($result) {
-        debug_log("Class created successfully");
-        $last_id = mysqli_insert_id($conn);
-    } else {
-        debug_log("Error creating class: " . mysqli_error($conn));
-        die();
+        // Check if class name contains special characters
+        if (!preg_match("/^[a-zA-Z0-9 ]*$/", $class_name)) {
+            $_SESSION['error'] = "Class name can only contain letters, numbers, and spaces!";
+            return;
+        }
+
+        // Check if class name is longer than 50 characters
+        if (strlen($class_name) > 50) {
+            $_SESSION['error'] = "Class name is too long!";
+            return;
+        }
+
+        $query = "INSERT INTO kelas (nama, invite) VALUES ('$class_name', UUID())";
+        $result = mysqli_query($conn, $query);
+
+        if ($result) {
+            debug_log("Class created successfully");
+            $last_id = mysqli_insert_id($conn);
+        } else {
+            $_SESSION['error'] = "Error creating class: " . mysqli_error($conn);
+            return;
+        }
+
+        $query = "INSERT INTO kelas_pengguna (id_kelas, id_pengguna, peranan) VALUES ($last_id, $user_id, 'GURU')";
+        $result = mysqli_query($conn, $query);
+
+        if ($result) {
+            debug_log("User added to class successfully");
+            header("Location: index.php");
+        } else {
+            $_SESSION['error'] = "Error adding user to class: " . mysqli_error($conn);
+            return;
+        }
     }
 
-    $query = "INSERT INTO kelas_pengguna (id_kelas, id_pengguna, peranan) VALUES ($last_id, $user_id, 'GURU')";
-    $result = mysqli_query($conn, $query);
-
-    if ($result) {
-        debug_log("User added to class successfully");
-    } else {
-        debug_log("Error adding user to class: " . mysqli_error($conn));
-        die();
-    }
-
-    header("Location: index.php");
+    create_class($conn, $class_name, $user_id);
 }
