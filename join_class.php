@@ -25,7 +25,21 @@ if ($result->num_rows == 0) {
 
 $class_id = $result->fetch_assoc()['id_kelas'];
 
-// Insert user into class, if error means user already in class
+// Check if user already in class
+$query = sprintf(
+    "SELECT * FROM kelas_pengguna
+    WHERE id_pengguna = %u AND id_kelas = %u",
+    $_SESSION['user_id'],
+    $class_id
+);
+
+$result = $conn->query($query);
+if ($result->num_rows > 0) {
+    header("Location: class.php?id=" . $class_id);
+    exit();
+}
+
+
 $query = sprintf(
     "INSERT INTO kelas_pengguna (id_kelas, id_pengguna)
     VALUES (%u, %u)",
