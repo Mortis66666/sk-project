@@ -155,6 +155,12 @@ include("debug.php")
             font-weight: bold;
             margin-bottom: 20px;
         }
+
+        .success-message {
+            color: green;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
@@ -171,15 +177,21 @@ include("debug.php")
             echo "<div class='error-message'>" . $_SESSION['error'] . "</div>";
             unset($_SESSION['error']);
         }
+
+        if (isset($_SESSION['success'])) {
+            debug_log("Success: " . $_SESSION['success']);
+            echo "<div class='success-message'>" . $_SESSION['success'] . "</div>";
+            unset($_SESSION['success']);
+        }
         ?>
 
         <h3>Login Here</h3>
 
         <label for="username">Username</label>
-        <input type="text" placeholder="Email or Phone" id="username" name="username" required>
+        <input type="text" placeholder="Username" id="username" name="username" required>
 
         <label for="password">Password</label>
-        <input type="password" placeholder="Password" id="password" name="password" required>
+        <input type="password" placeholder="Password" id="password" name="password" autocomplete="current-password" required>
 
         <button type="submit">Log In</button>
         <!-- <div class="social">
@@ -205,7 +217,7 @@ include("debug.php")
             $_SESSION['user_id'] = $row['id_pengguna'];
             debug_log("Login successful");
 
-            echo "<script>window.location.href='index.php'</script>";
+            execute("window.location.href='index.php'");
         } else {
             debug_log("Login failed");
             $_SESSION['error'] = "Login failed";

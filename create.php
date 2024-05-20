@@ -38,13 +38,7 @@ if (!isset($_SESSION['user_id'])) {
 </head>
 
 <body>
-    <div class="header" id="header">
-        <button class="create-class-button" onclick="history.back()">
-            <i class="fa-solid fa-left-long"></i>
-            Back
-        </button>
-        <button class="logout-button">Logout</button>
-    </div>
+    <?php include("header.php"); ?>
 
     <div class="create-class-form content">
         <h1>Create Class</h1>
@@ -59,8 +53,9 @@ if (!isset($_SESSION['user_id'])) {
     <?php
     if (isset($_SESSION['error'])) {
         debug_log("Error: " . $_SESSION['error']);
-        execute("alert('" . $_SESSION['error'] . "')");
+        $error = $_SESSION['error'];
         unset($_SESSION['error']);
+        execute("alert('" . $error . "')");
     }
     ?>
 </body>

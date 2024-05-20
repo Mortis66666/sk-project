@@ -335,19 +335,7 @@ execute("const students = " . json_encode($students) . ";");
 </head>
 
 <body>
-    <div class="header" id="header">
-        <button class="create-class-button" onclick="history.back()">
-            <i class="fa-solid fa-left-long"></i>
-            Back
-        </button>
-
-        <form class="input-container">
-            <input class="input-box" type="text" name="code" placeholder="Enter code">
-            <button class="submit-button" type="submit">Submit</button>
-        </form>
-
-        <button class="logout-button">Logout</button>
-    </div>
+    <?php include("header.php"); ?>
 
     <div class="content" id="content">
         <div class="utils">
