@@ -11,7 +11,7 @@
         echo '<form class="input-container"><input class="input-box" type="text" name="code" placeholder="Enter code"><button class="submit-button" type="submit">Submit</button></form>';
     }
 
-    if ($current_page == 'create.php') {
+    if ($current_page == 'create.php' || $current_page == 'invite.php') {
         echo '<button class="create-class-button" onclick="history.back()"><i class="fa-solid fa-left-long"></i>Back</button>';
     }
 

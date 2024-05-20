@@ -16,16 +16,13 @@ if (!isset($_GET['id'])) {
 
 $students = array();
 
-$query = sprintf(
-    "SELECT id_pengguna as id, nama_pengguna as name FROM pengguna
+$query = "SELECT id_pengguna as id, nama_pengguna as name FROM pengguna
     WHERE id_pengguna IN (
         SELECT id_pengguna FROM kelas_pengguna
-        WHERE id_kelas = %u and peranan != 'GURU'
-    )",
-    $_GET['id']
-);
+        WHERE id_kelas = ? and peranan != 'GURU'
+    )";
 
-$result = $conn->query($query);
+$result = $conn->execute_query($query, [$_GET['id']]);
 
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {

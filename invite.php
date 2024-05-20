@@ -9,19 +9,29 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $invite = $_GET['id'];
-$query = sprintf(
-    "SELECT nama FROM kelas
-    WHERE invite = '%s'",
-    $invite
-);
 
-$result = $conn->query($query);
+$query = "SELECT nama, id_kelas FROM kelas WHERE invite = ?";
+
+$result = $conn->execute_query($query, [$invite]);
+
 if ($result->num_rows == 0) {
     header("Location: index.php");
     exit();
 }
 
-$class_name = $result->fetch_assoc()['nama'];
+$row = $result->fetch_assoc();
+$class_name = $row['nama'];
+$class_id = $row['id_kelas'];
+
+// Check if user in class
+$query = "SELECT * FROM kelas_pengguna WHERE id_pengguna = ? AND id_kelas = ?";
+$result = $conn->execute_query($query, [$_SESSION['user_id'], $class_id]);
+
+if ($result->num_rows > 0) {
+    header("Location: class.php?id=$class_id");
+    exit();
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -36,6 +46,7 @@ $class_name = $result->fetch_assoc()['nama'];
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin-top: 0;
         }
 
         .invite-message {
@@ -46,13 +57,8 @@ $class_name = $result->fetch_assoc()['nama'];
 </head>
 
 <body>
-    <div class="header" id="header">
-        <button class="create-class-button" onclick="history.back()">
-            <i class="fa-solid fa-left-long"></i>
-            Back
-        </button>
-        <button class="logout-button">Logout</button>
-    </div>
+    <?php include("header.php"); ?>
+
     <div class="invite-container content">
         <p class="invite-message">You are invited to <?php echo $class_name; ?> class</p>
         <form action="join_class.php" method="post">
