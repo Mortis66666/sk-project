@@ -2,6 +2,35 @@
 session_start();
 include("database.php");
 include("debug.php");
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST["username"];
+    $password = $_POST["password"];
+    $cpassword = $_POST["cpassword"];
+
+    debug_log("Username: $username");
+    debug_log("Password: $password");
+    debug_log("Confirm Password: $cpassword");
+
+    // Validating
+    if ($password != $cpassword) {
+        $_SESSION['error'] = "Passwords do not match";
+        execute("window.location.href='signup.php'");
+    }
+
+
+    $sql = "INSERT INTO pengguna (nama_pengguna, kata_laluan) VALUES (?, ?)";
+    $result = $conn->execute_query($sql, [$username, $password]);
+
+    // Check if the query is successful
+    if ($result) {
+        $_SESSION['success'] = "Sign up successful";
+        execute("window.location.href='login.php'");
+    } else {
+        $_SESSION['error'] = "Sign up failed";
+        execute("window.location.href='signup.php'");
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -190,38 +219,6 @@ include("debug.php");
             <div class="fb"><i class="fab fa-facebook"></i> Facebook</div>
         </div> -->
     </form>
-
-    <?php
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $username = $_POST["username"];
-        $password = $_POST["password"];
-        $cpassword = $_POST["cpassword"];
-
-        debug_log("Username: $username");
-        debug_log("Password: $password");
-        debug_log("Confirm Password: $cpassword");
-
-        // Validating
-        if ($password != $cpassword) {
-            $_SESSION['error'] = "Passwords do not match";
-            execute("window.location.href='signup.php'");
-        }
-
-
-        $sql = "INSERT INTO pengguna (nama_pengguna, kata_laluan) VALUES (?, ?)";
-        $result = $conn->execute_query($sql, [$username, $password]);
-
-        // Check if the query is successful
-        if ($result) {
-            $_SESSION['success'] = "Sign up successful";
-            execute("window.location.href='login.php'");
-        } else {
-            $_SESSION['error'] = "Sign up failed";
-            execute("window.location.href='signup.php'");
-        }
-    }
-    ?>
-
 </body>
 
 </html>

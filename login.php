@@ -1,7 +1,30 @@
 <?php
 session_start();
 include("database.php");
-include("debug.php")
+include("debug.php");
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST["username"];
+    $password = $_POST["password"];
+
+    debug_log("Username: $username");
+    debug_log("Password: $password");
+
+    $sql = "SELECT id_pengguna FROM pengguna WHERE nama_pengguna=? AND kata_laluan=?";
+    $result = $conn->execute_query($sql, [$username, $password]);
+    // $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $_SESSION['user_id'] = $row['id_pengguna'];
+        debug_log("Login successful");
+
+        execute("window.location.href='index.php'");
+    } else {
+        debug_log("Login failed");
+        $_SESSION['error'] = "Login failed";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -173,7 +196,6 @@ include("debug.php")
 
         <?php
         if (isset($_SESSION['error'])) {
-            debug_log("Error: " . $_SESSION['error']);
             echo "<div class='error-message'>" . $_SESSION['error'] . "</div>";
             unset($_SESSION['error']);
         }
@@ -199,32 +221,6 @@ include("debug.php")
             <div class="fb"><i class="fab fa-facebook"></i> Facebook</div>
         </div> -->
     </form>
-
-    <?php
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $username = $_POST["username"];
-        $password = $_POST["password"];
-
-        debug_log("Username: $username");
-        debug_log("Password: $password");
-
-        $sql = "SELECT id_pengguna FROM pengguna WHERE nama_pengguna=? AND kata_laluan=?";
-        $result = $conn->execute_query($sql, [$username, $password]);
-        // $result = $conn->query($sql);
-
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            $_SESSION['user_id'] = $row['id_pengguna'];
-            debug_log("Login successful");
-
-            execute("window.location.href='index.php'");
-        } else {
-            debug_log("Login failed");
-            $_SESSION['error'] = "Login failed";
-        }
-    }
-    ?>
-
 </body>
 
 </html>
