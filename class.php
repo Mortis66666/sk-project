@@ -14,6 +14,15 @@ if (!isset($_GET['id'])) {
     exit();
 }
 
+// Check if student in class
+$query = "SELECT * FROM kelas_pengguna WHERE id_kelas = ? AND id_pengguna = ?";
+$result = $conn->execute_query($query, [$_GET['id'], $_SESSION['user_id']]);
+if ($result->num_rows == 0) {
+    debug_log("User not in class");
+    header("Location: index.php");
+    exit();
+}
+
 $students = array();
 
 $query = "SELECT id_pengguna as id, nama_pengguna as name FROM pengguna
