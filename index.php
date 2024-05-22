@@ -5,7 +5,7 @@
 session_start();
 include("database.php");
 include("debug.php");
-// debug_log($_SESSION['user_id']);
+
 if (!isset($_SESSION['user_id'])) {
     debug_log("User not logged in");
     header("Location: login.php");

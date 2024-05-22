@@ -261,6 +261,10 @@ execute("const students = " . json_encode($students) . ";");
             width: 300px;
         }
 
+        .code {
+            text-align: center;
+        }
+
         #copy-button,
         .submit-button {
             background-color: #ffffff;
@@ -392,6 +396,7 @@ execute("const students = " . json_encode($students) . ";");
         const inviteBtn = document.getElementById("invite-popup-btn");
         const users = document.getElementById("users");
         const searchUser = document.getElementById("search-user");
+        const code = document.getElementById("code");
 
         for (let student of students) {
             const label = document.createElement("label");
@@ -435,6 +440,12 @@ execute("const students = " . json_encode($students) . ";");
 
             let tooltip = document.getElementById("tooltip");
             tooltip.innerHTML = "Copied to clipboard!";
+        };
+
+        code.onclick = () => {
+            code.select();
+            code.setSelectionRange(0, 99999);
+            document.execCommand("copy");
         };
 
         copyBtn.addEventListener("mouseout", () => {

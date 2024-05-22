@@ -98,7 +98,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return;
         }
 
-        $query = "INSERT INTO kelas_pengguna (id_kelas, id_pengguna, peranan) VALUES ($last_id, $user_id, 'GURU')";
+        $code = generate_code();
+
+        $query = "INSERT INTO kelas_pengguna (id_kelas, id_pengguna, peranan, code, last_update) VALUES ($last_id, $user_id, 'GURU', $code, NOW())";
         $result = mysqli_query($conn, $query);
 
         if ($result) {
