@@ -40,7 +40,7 @@ function get_code($class_id)
 
         if ($diff > 86400) {
             $code = generate_code();
-            $query = "UPDATE kelas_pengguna SET code = $code, last_update = NOW() WHERE id_kelas = $class_id";
+            $query = "UPDATE kelas SET code = $code, last_update = NOW() WHERE id_kelas = $class_id";
             $result = mysqli_query($conn, $query);
 
             if ($result) {
@@ -50,7 +50,7 @@ function get_code($class_id)
             }
         }
 
-        return $row['code'];
+        return $row["code"];
     } else {
         return "Error: " . mysqli_error($conn);
     }

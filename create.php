@@ -15,12 +15,12 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <title>Create Class</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet" type='text/css'>
     <style media="screen">
         .create-class-form {
             border: 2px #080710 solid;
             border-radius: 10px;
             width: 35%;
-            /* Adjust this value to suit your needs */
             padding: 20px;
             box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
             backdrop-filter: blur(10px);
@@ -58,6 +58,8 @@ if (!isset($_SESSION['user_id'])) {
         execute("alert('" . $error . "')");
     }
     ?>
+
+    <?php include("dark_mode.php") ?>
 </body>
 
 </html>

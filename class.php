@@ -51,7 +51,7 @@ execute("const students = " . json_encode($students) . ";");
 <head>
     <title>Home Menu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet" type='text/css'>
     <style media="screen">
         * {
             padding: 0;
@@ -263,6 +263,7 @@ execute("const students = " . json_encode($students) . ";");
 
         .code {
             text-align: center;
+            font-weight: 600;
         }
 
         #copy-button,
@@ -372,7 +373,6 @@ execute("const students = " . json_encode($students) . ";");
                                             $query = "SELECT invite FROM kelas WHERE id_kelas = " . $_GET['id'];
                                             $result = $conn->query($query);
                                             $invite = $result->fetch_assoc()['invite'];
-                                            // debug_log($_SERVER['SERVER_ADDR']);
                                             echo 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/' . 'invite.php?id=' . $invite;
                                             ?>" id="invitation-link" class="input-box" readonly>
                 <div class="tooltip">
@@ -385,11 +385,8 @@ execute("const students = " . json_encode($students) . ";");
         </div>
     </div>
 
-    <button class="dark-mode-toggle" id="darkModeToggle">
-        <i class="fa-solid fa-moon fa-2xl" id="icon-toggle"></i>
-    </button>
+    <?php include("dark_mode.php") ?>
 
-    <script src="script.js"></script>
     <script>
         const copyBtn = document.getElementById("copy-button");
         const close = document.getElementById("close");

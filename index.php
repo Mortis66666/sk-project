@@ -16,7 +16,7 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <title>Home Menu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet" type='text/css'>
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -44,11 +44,9 @@ if (!isset($_SESSION['user_id'])) {
         }
         ?>
     </div>
-    <button class="dark-mode-toggle" id="darkModeToggle">
-        <i class="fa-solid fa-moon fa-2xl" id="icon-toggle"></i>
-    </button>
 
-    <script src="script.js"></script>
+
+    <?php include("dark_mode.php") ?>
 </body>
 
 </html>
