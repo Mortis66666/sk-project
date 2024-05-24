@@ -14,9 +14,11 @@ if (!isset($_GET['id'])) {
     exit();
 }
 
+$class_id = $_GET['id'];
+
 // Check if student in class
 $query = "SELECT * FROM kelas_pengguna WHERE id_kelas = ? AND id_pengguna = ?";
-$result = $conn->execute_query($query, [$_GET['id'], $_SESSION['user_id']]);
+$result = $conn->execute_query($query, [$class_id, $_SESSION['user_id']]);
 if ($result->num_rows == 0) {
     debug_log("User not in class");
     header("Location: index.php");
@@ -25,19 +27,29 @@ if ($result->num_rows == 0) {
 
 $students = array();
 
-$query = "SELECT id_pengguna as id, nama_pengguna as name FROM pengguna
-    WHERE id_pengguna IN (
-        SELECT id_pengguna FROM kelas_pengguna
-        WHERE id_kelas = ? and peranan != 'GURU'
-    )";
+$query =
+    "SELECT
+    p.id_pengguna AS id,
+    p.nama_pengguna AS name,
+    COALESCE(MAX(DATEDIFF(CURDATE(), k.masa_daftar) <= 1), 0) AS attended
+    FROM
+        pengguna p
+    INNER JOIN
+        kelas_pengguna kp ON kp.id_pengguna = p.id_pengguna AND kp.peranan != 'GURU' AND kp.id_kelas = ?
+    LEFT JOIN
+        kehadiran k ON k.id_pengguna = p.id_pengguna AND k.id_kelas = kp.id_kelas
+    GROUP BY
+        p.id_pengguna, p.nama_pengguna;
+    ";
 
-$result = $conn->execute_query($query, [$_GET['id']]);
+$result = $conn->execute_query($query, [$class_id]);
 
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $students[] = array(
             'id' => $row['id'],
-            'name' => $row['name']
+            'name' => $row['name'],
+            'attended' => $row['attended']
         );
     }
 }
@@ -343,6 +355,8 @@ execute("const students = " . json_encode($students) . ";");
             width: auto !important;
         }
     </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 
 <body>
@@ -398,7 +412,7 @@ execute("const students = " . json_encode($students) . ";");
         for (let student of students) {
             const label = document.createElement("label");
             label.classList.add("checkbox-container");
-            label.id = student.id;
+            // label.id = student.id;
 
             const nameBtn = document.createElement("button");
             nameBtn.classList.add("name-btn");
@@ -407,13 +421,54 @@ execute("const students = " . json_encode($students) . ";");
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
 
+            if (student.attended) {
+                nameBtn.classList.add("checked");
+                checkbox.checked = true;
+            }
+
             label.appendChild(nameBtn);
             label.appendChild(checkbox);
 
             users.appendChild(label);
 
             checkbox.addEventListener("click", () => {
-                nameBtn.classList.toggle("checked");
+                if (checkbox.checked) {
+                    // Send post request to attendance.php
+                    $.ajax({
+                        url: "attendance.php",
+                        type: "POST",
+                        dataType: "json",
+                        data: {
+                            class_id: <?php echo $class_id; ?>,
+                            student_id: student.id,
+                            action: "add"
+                        },
+                        success: function(data) {
+                            nameBtn.classList.add("checked");
+                        },
+                        error: function() {
+                            checkbox.prop("checked", false);
+                        }
+                    });
+                } else {
+                    // Send post request to attendance.php
+                    $.ajax({
+                        url: "attendance.php",
+                        type: "POST",
+                        dataType: "json",
+                        data: {
+                            class_id: <?php echo $class_id; ?>,
+                            student_id: student.id,
+                            action: "remove"
+                        },
+                        success: function(data) {
+                            nameBtn.classList.remove("checked");
+                        },
+                        error: function() {
+                            checkbox.prop("checked", true);
+                        }
+                    });
+                }
             });
         }
 
