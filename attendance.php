@@ -3,8 +3,13 @@ session_start();
 include("database.php");
 include("debug.php");
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+} else if (isset($_POST['user_id'])) {
+    $user_id = $_POST['user_id'];
+} else {
+    http_response_code(403);
+    echo json_encode(['error' => 'Forbidden']);
     exit();
 }
 
@@ -23,16 +28,17 @@ header('Content-Type: application/json; charset=utf-8');
 $class_id = $_POST['class_id'];
 $student_id = $_POST['student_id'];
 $action = $_POST['action'];
-$user_id = $_SESSION['user_id'];
 
-// Check if user is a teacher
-$sql = "SELECT * FROM kelas_pengguna WHERE id_pengguna=? AND id_kelas=? AND (peranan='GURU' OR peranan='ADMIN')";
-$result = $conn->execute_query($sql, [$user_id, $class_id]);
+if ($student_id != $user_id) {
+    // Check if user is a teacher
+    $sql = "SELECT * FROM kelas_pengguna WHERE id_pengguna=? AND id_kelas=? AND (peranan='GURU' OR peranan='ADMIN')";
+    $result = $conn->execute_query($sql, [$user_id, $class_id]);
 
-if ($result->num_rows == 0) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Forbidden']);
-    exit();
+    if ($result->num_rows == 0) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Forbidden']);
+        exit();
+    }
 }
 
 if ($action == "add") {

@@ -23,13 +23,14 @@
         if ($result) {
             $row = mysqli_fetch_assoc($result);
 
-            if ($row['peranan'] == 'GURU') {
+            if ($row['peranan'] == 'GURU' || $row['peranan'] == 'ADMIN') {
                 $code = get_code($class_id);
 
                 echo '<input class="input-box code" id="code" type="text" name="code" value="' . $code . '" readonly>';
             } else {
         ?>
-                <form class="input-container">
+                <form class="input-container" method="post" action="enter_code.php">
+                    <input type="hidden" name="class_id" value="<?php echo $class_id ?>">
                     <input class="input-box" type="text" name="code" placeholder="Enter code">
                     <button class="submit-button" type="submit">Submit</button>
                 </form>

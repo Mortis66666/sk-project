@@ -55,6 +55,10 @@ if ($result->num_rows > 0) {
 }
 
 execute("const students = " . json_encode($students) . ";");
+
+if (isset($_SESSION['code-result'])) {
+    execute("alert('" . $_SESSION['code-result'] . "')");
+}
 ?>
 
 <!DOCTYPE html>
