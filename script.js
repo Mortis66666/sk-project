@@ -6,9 +6,9 @@ const iconToggle = document.getElementById("icon-toggle");
 const inviteBox = document.getElementById("invite-box");
 
 darkModeToggle.addEventListener("click", () => {
-    body.classList.toggle("dark-mode");
-    header.classList.toggle("dark-mode");
-    content.classList.toggle("dark-mode");
+    body?.classList.toggle("dark-mode");
+    header?.classList.toggle("dark-mode");
+    content?.classList.toggle("dark-mode");
     if (inviteBox) {
         inviteBox.classList.toggle("dark-mode");
     }

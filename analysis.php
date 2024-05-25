@@ -60,17 +60,51 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     }
 
     // Check how many times the user is present since $join_date
-    $present = 0;
+    // $days = array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
+    $days = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday");
+    $day_amount = count($days);
+    $attended_data = array_fill(0, $day_amount, 0);
+    $close_call = 0;
 
     foreach ($attendance as $record) {
-        if ($record['masa_daftar'] >= $join_date) {
-            $present++;
+        $day = date('w', strtotime($record['masa_daftar'])) - 1;
+
+        if ($day < 0 || $day >= $day_amount) {
+            continue;
+        }
+
+        $attended_data[$day]++;
+
+        // Check if the record is a close call (taken at the last hour of the day)
+        $hour = date('H', strtotime($record['masa_daftar']));
+        if ($hour == 23) {
+            $close_call++;
         }
     }
 
-    // Calculate the percentage of attendance
-    // Total days since join_date
+    $present = array_sum($attended_data);
+
+    // Use statistics to determine the days user ditched
+    $mean = array_sum($attended_data) / count($attended_data);
+    $variance = array_sum(array_map(function ($x) use ($mean) {
+        return pow($x - $mean, 2);
+    }, $attended_data)) / count($attended_data);
+    $standard_deviation = sqrt($variance);
+
+    $lower_bound = $mean - 2 * $standard_deviation;
+
+    $most_ditched_days = [];
+
+    for ($i = 0; $i < $day_amount; $i++) {
+        if ($attended_data[$i] < $lower_bound) {
+            $most_ditched_days[] = $days[$i];
+        }
+    }
+
+    $most_ditched_day = implode(", ", $most_ditched_days);
+
     $total_days = ceil((time() - strtotime($join_date)) / (60 * 60 * 24));
+    $average_per_week = $present / ($total_days / $day_amount);
 
     $percentage = ($present / $total_days) * 100;
     $percentage = round($percentage, 2);
@@ -170,9 +204,19 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             <?= $percentage ?>%
         </div>
         <ul>
-            <li><b>12</b> close call</li>
-            <li><b>Most frequent absent day:</b> Wednesday</li>
-            <li><b>Average present days per week:</b> 4.33</li>
+            <?php
+            if ($close_call > 0) {
+                echo "<li><b>$close_call</b> close call</li>";
+            }
+            ?>
+            <?php
+            if (!empty($most_ditched_day)) {
+            ?>
+                <li><b>Most frequent absent day:</b> <?= $most_ditched_day ?></li>
+            <?php
+            }
+            ?>
+            <li><b>Average present days per week:</b> <?= $average_per_week ?></li>
         </ul>
     </div>
 
