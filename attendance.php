@@ -36,7 +36,7 @@ if ($student_id != $user_id) {
 
     if ($result->num_rows == 0) {
         http_response_code(403);
-        echo json_encode(['error' => 'Forbidden']);
+        echo json_encode(['error' => 'You have to be an admin or teacher to take attendance for other students']);
         exit();
     }
 }

@@ -16,6 +16,18 @@ if (!isset($_GET['id'])) {
 
 $class_id = $_GET['id'];
 
+// Get class name
+$query = "SELECT nama FROM kelas WHERE id_kelas = ?";
+$result = $conn->execute_query($query, [$class_id]);
+
+if ($result->num_rows == 0) {
+    debug_log("Class not found");
+    header("Location: index.php");
+    exit();
+}
+
+$class_name = $result->fetch_assoc()['nama'];
+
 // Check if student in class
 $query = "SELECT * FROM kelas_pengguna WHERE id_kelas = ? AND id_pengguna = ?";
 $result = $conn->execute_query($query, [$class_id, $_SESSION['user_id']]);
@@ -55,9 +67,11 @@ if ($result->num_rows > 0) {
 }
 
 execute("const students = " . json_encode($students) . ";");
+execute("const class_id = " . $class_id . ";");
 
 if (isset($_SESSION['code-result'])) {
     execute("alert('" . $_SESSION['code-result'] . "')");
+    unset($_SESSION['code-result']);
 }
 ?>
 
@@ -65,7 +79,7 @@ if (isset($_SESSION['code-result'])) {
 <html lang="en">
 
 <head>
-    <title>Home Menu</title>
+    <title>Class <?= $class_name ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet" type='text/css'>
     <style media="screen">
@@ -77,21 +91,6 @@ if (isset($_SESSION['code-result'])) {
 
         body {
             font-family: 'Poppins', sans-serif;
-        }
-
-        .dark-mode-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: transparent;
-            border: none;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .dark-mode-icon {
-            color: #ffffff;
-            font-size: 24px;
         }
 
         .header {
@@ -435,6 +434,10 @@ if (isset($_SESSION['code-result'])) {
 
             users.appendChild(label);
 
+            nameBtn.addEventListener("click", () => {
+                window.location.href = `analysis.php?cid=${class_id}&uid=${student.id}`;
+            });
+
             checkbox.addEventListener("click", () => {
                 if (checkbox.checked) {
                     // Send post request to attendance.php
@@ -450,8 +453,10 @@ if (isset($_SESSION['code-result'])) {
                         success: function(data) {
                             nameBtn.classList.add("checked");
                         },
-                        error: function() {
-                            checkbox.prop("checked", false);
+                        error: function(xhr, status, error) {
+                            checkbox.checked = false;
+                            let err = eval("(" + xhr.responseText + ")");
+                            alert(err.error);
                         }
                     });
                 } else {
@@ -468,8 +473,10 @@ if (isset($_SESSION['code-result'])) {
                         success: function(data) {
                             nameBtn.classList.remove("checked");
                         },
-                        error: function() {
-                            checkbox.prop("checked", true);
+                        error: function(xhr, status, error) {
+                            checkbox.checked = true;
+                            let err = eval("(" + xhr.responseText + ")");
+                            alert(err.error);
                         }
                     });
                 }

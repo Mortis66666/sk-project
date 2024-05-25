@@ -39,7 +39,7 @@
         }
     }
 
-    if ($current_page == 'create.php' || $current_page == 'invite.php') {
+    if ($current_page == 'create.php' || $current_page == 'invite.php' || $current_page == 'analysis.php') {
         ?>
         <button class="create-class-button" onclick="history.back()"><i class="fa-solid fa-left-long"></i>Back</button>
     <?php

@@ -89,7 +89,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return;
         }
 
-        $query = "INSERT INTO kelas (nama, invite) VALUES ('$class_name', UUID())";
+        $code = generate_code();
+
+        $query = "INSERT INTO kelas (nama, invite, code, last_update) VALUES ('$class_name', UUID(), $code, NOW())";
         $result = mysqli_query($conn, $query);
 
         if ($result) {
@@ -100,9 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return;
         }
 
-        $code = generate_code();
-
-        $query = "INSERT INTO kelas_pengguna (id_kelas, id_pengguna, peranan, code, last_update) VALUES ($last_id, $user_id, 'GURU', $code, NOW())";
+        $query = "INSERT INTO kelas_pengguna (id_kelas, id_pengguna, peranan) VALUES ($last_id, $user_id, 'GURU')";
         $result = mysqli_query($conn, $query);
 
         if ($result) {
