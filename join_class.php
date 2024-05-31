@@ -19,7 +19,7 @@ $query = sprintf(
 
 $result = $conn->query($query);
 if ($result->num_rows == 0) {
-    header("Location: index.php");
+    header("Location: home.php");
     exit();
 }
 
@@ -48,7 +48,7 @@ $query = sprintf(
 );
 
 if (!$conn->query($query)) {
-    header("Location: index.php");
+    header("Location: home.php");
     exit();
 }
 

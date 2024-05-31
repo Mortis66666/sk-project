@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
     if (!isset($_GET['cid']) || !isset($_GET['uid'])) {
-        header("Location: index.php");
+        header("Location: home.php");
         die();
     }
 

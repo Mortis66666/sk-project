@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($result) {
             debug_log("User added to class successfully");
-            header("Location: index.php");
+            header("Location: home.php");
         } else {
             $_SESSION['error'] = "Error adding user to class: " . mysqli_error($conn);
             return;

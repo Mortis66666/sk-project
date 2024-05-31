@@ -2,7 +2,7 @@
     <?php
     $current_page = basename($_SERVER['PHP_SELF']);
 
-    if ($current_page == 'index.php') {
+    if ($current_page == 'home.php') {
     ?>
         <a href="create.php"><button class="create-class-button">Create New Class</button></a>
     <?php

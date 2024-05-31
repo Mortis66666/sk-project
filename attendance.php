@@ -14,7 +14,7 @@ if (isset($_SESSION['user_id'])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
-    header("Location: index.php");
+    header("Location: home.php");
     exit();
 }
 

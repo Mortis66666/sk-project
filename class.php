@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 if (!isset($_GET['id'])) {
-    header("Location: index.php");
+    header("Location: home.php");
     exit();
 }
 
@@ -22,7 +22,7 @@ $result = $conn->execute_query($query, [$class_id]);
 
 if ($result->num_rows == 0) {
     debug_log("Class not found");
-    header("Location: index.php");
+    header("Location: home.php");
     exit();
 }
 
@@ -33,7 +33,7 @@ $query = "SELECT * FROM kelas_pengguna WHERE id_kelas = ? AND id_pengguna = ?";
 $result = $conn->execute_query($query, [$class_id, $_SESSION['user_id']]);
 if ($result->num_rows == 0) {
     debug_log("User not in class");
-    header("Location: index.php");
+    header("Location: home.php");
     exit();
 }
 
@@ -41,9 +41,9 @@ $students = array();
 
 $query =
     "SELECT
-    p.id_pengguna AS id,
-    p.nama_pengguna AS name,
-    COALESCE(MAX(DATEDIFF(CURDATE(), k.masa_daftar) <= 1), 0) AS attended
+        p.id_pengguna AS id,
+        p.nama_pengguna AS name,
+        COALESCE(MAX(DATEDIFF(CURDATE(), k.masa_daftar) <= 1), 0) AS attended
     FROM
         pengguna p
     INNER JOIN
@@ -51,10 +51,13 @@ $query =
     LEFT JOIN
         kehadiran k ON k.id_pengguna = p.id_pengguna AND k.id_kelas = kp.id_kelas
     GROUP BY
-        p.id_pengguna, p.nama_pengguna;
+        p.id_pengguna, p.nama_pengguna
+    ORDER BY
+        -- Prioritize current user, then order by name
+        p.id_pengguna = ? DESC, p.nama_pengguna ASC
     ";
 
-$result = $conn->execute_query($query, [$class_id]);
+$result = $conn->execute_query($query, [$class_id, $_SESSION['user_id']]);
 
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {

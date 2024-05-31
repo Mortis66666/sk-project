@@ -15,7 +15,7 @@ $query = "SELECT nama, id_kelas FROM kelas WHERE invite = ?";
 $result = $conn->execute_query($query, [$invite]);
 
 if ($result->num_rows == 0) {
-    header("Location: index.php");
+    header("Location: home.php");
     exit();
 }
 

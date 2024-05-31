@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['user_id'] = $row['id_pengguna'];
         debug_log("Login successful");
 
-        execute("window.location.href='index.php'");
+        execute("window.location.href='home.php'");
     } else {
         debug_log("Login failed");
         $_SESSION['error'] = "Login failed";
