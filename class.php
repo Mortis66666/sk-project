@@ -2,12 +2,7 @@
 session_start();
 include("database.php");
 include("debug.php");
-
-if (!isset($_SESSION['user_id'])) {
-    debug_log("User not logged in");
-    header("Location: login.php");
-    exit();
-}
+include("check_user.php");
 
 if (!isset($_GET['id'])) {
     header("Location: home.php");

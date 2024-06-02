@@ -17,7 +17,7 @@ function generate_code()
     // Create random 6-digit code as string
     $code = "";
     for ($i = 0; $i < 6; $i++) {
-        $code .= rand(0, 9);
+        $code .= rand(1, 9);
     }
 
     return $code;
