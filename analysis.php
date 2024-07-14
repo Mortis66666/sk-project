@@ -191,11 +191,20 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             font-size: 18px;
             margin: 2vh 0;
         }
+
+        .zoom {
+            position: fixed;
+            z-index: 100;
+        }
     </style>
 </head>
 
 <body>
     <?php include("header.php") ?>
+
+    <button id="big" class="zoom">+</button>
+    <button id="small" class="zoom">-</button>
+    <button id="print" class="zoom">Print</button>
 
     <div class="container">
         <h1>Attendance analysis of <?= $user_name ?> in class <?= $class_name ?></h1>
@@ -219,6 +228,41 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             <li><b>Average present days per week:</b> <?= $average_per_week ?></li>
         </ul>
     </div>
+
+    <script>
+        // Randomize the position of #big and #small
+        const big = document.getElementById("big");
+        const small = document.getElementById("small");
+        const print = document.getElementById("print");
+
+        const randomizePosition = () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            big.style.left = Math.floor(Math.random() * width) + "px";
+            big.style.top = Math.floor(Math.random() * height) + "px";
+
+            small.style.left = Math.floor(Math.random() * width) + "px";
+            small.style.top = Math.floor(Math.random() * height) + "px";
+
+            print.style.left = Math.floor(Math.random() * width) + "px";
+            print.style.top = Math.floor(Math.random() * height) + "px";
+        }
+
+        randomizePosition();
+
+        big.addEventListener("click", () => {
+            document.body.style.zoom = parseFloat(document.body.style.zoom || 1) + 0.1;
+        });
+
+        small.addEventListener("click", () => {
+            document.body.style.zoom = parseFloat(document.body.style.zoom || 1) - 0.1;
+        });
+
+        print.addEventListener("click", () => {
+            window.print();
+        });
+    </script>
 
     <?php include("dark_mode.php") ?>
 </body>

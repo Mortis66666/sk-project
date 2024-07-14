@@ -34,31 +34,38 @@ if ($result->num_rows == 0) {
 
 $students = array();
 
+// Get role of user
+$query = "SELECT peranan FROM kelas_pengguna WHERE id_kelas = ? AND id_pengguna = ?";
+$result = $conn->execute_query($query, [$class_id, $_SESSION['user_id']]);
+$role = $result->fetch_assoc()['peranan'];
+
 $query =
     "SELECT
         p.id_pengguna AS id,
         p.nama_pengguna AS name,
+        kp.peranan as role,
         COALESCE(MAX(DATEDIFF(CURDATE(), k.masa_daftar) <= 1), 0) AS attended
     FROM
         pengguna p
     INNER JOIN
-        kelas_pengguna kp ON kp.id_pengguna = p.id_pengguna AND kp.peranan != 'GURU' AND kp.id_kelas = ?
+        kelas_pengguna kp ON kp.id_pengguna = p.id_pengguna AND kp.peranan != ? AND kp.id_kelas = ?
     LEFT JOIN
         kehadiran k ON k.id_pengguna = p.id_pengguna AND k.id_kelas = kp.id_kelas
     GROUP BY
         p.id_pengguna, p.nama_pengguna
     ORDER BY
         -- Prioritize current user, then order by name
-        p.id_pengguna = ? DESC, p.nama_pengguna ASC
+        kp.peranan = 'GURU' ASC, p.id_pengguna = ? DESC, p.nama_pengguna ASC
     ";
 
-$result = $conn->execute_query($query, [$class_id, $_SESSION['user_id']]);
+$result = $conn->execute_query($query, [$role == 'GURU' ? '' : 'GURU', $class_id, $_SESSION['user_id']]);
 
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $students[] = array(
             'id' => $row['id'],
             'name' => $row['name'],
+            'role' => $row['role'],
             'attended' => $row['attended']
         );
     }
@@ -352,8 +359,10 @@ if (isset($_SESSION['code-result'])) {
             margin-right: 10px;
         }
 
-        .invite-popup-btn {
+        .invite-popup-btn,
+        .import-file {
             width: auto !important;
+            margin-right: 10px !important;
         }
     </style>
 
@@ -369,6 +378,7 @@ if (isset($_SESSION['code-result'])) {
             <button class="invite-popup-btn" id="invite-popup-btn">
                 <i class="fa-solid fa-user-plus"></i>
             </button>
+            <a href="image.png"><button class="import-file">Import file</button></a>
         </div>
 
 
@@ -413,11 +423,20 @@ if (isset($_SESSION['code-result'])) {
         for (let student of students) {
             const label = document.createElement("label");
             label.classList.add("checkbox-container");
-            // label.id = student.id;
+            label.id = student.id;
 
             const nameBtn = document.createElement("button");
             nameBtn.classList.add("name-btn");
-            nameBtn.innerHTML = student.name;
+
+            let name = student.name;
+
+            if (student.role == "ADMIN") {
+                name += " (Admin)";
+            } else if (student.role == "GURU") {
+                name += " (Teacher)";
+            }
+
+            nameBtn.innerHTML = name;
 
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
@@ -425,6 +444,10 @@ if (isset($_SESSION['code-result'])) {
             if (student.attended) {
                 nameBtn.classList.add("checked");
                 checkbox.checked = true;
+            }
+
+            if (student.role == 'GURU') {
+                checkbox.disabled = true;
             }
 
             label.appendChild(nameBtn);
