@@ -2,35 +2,6 @@
 session_start();
 include("database.php");
 include("debug.php");
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST["username"];
-    $password = $_POST["password"];
-    $cpassword = $_POST["cpassword"];
-
-    debug_log("Username: $username");
-    debug_log("Password: $password");
-    debug_log("Confirm Password: $cpassword");
-
-    // Validating
-    if ($password != $cpassword) {
-        $_SESSION['error'] = "Passwords do not match";
-        execute("window.location.href='signup.php'");
-    }
-
-
-    $sql = "INSERT INTO pengguna (nama_pengguna, kata_laluan) VALUES (?, ?)";
-    $result = $conn->execute_query($sql, [$username, $password]);
-
-    // Check if the query is successful
-    if ($result) {
-        $_SESSION['success'] = "Sign up successful";
-        execute("window.location.href='login.php'");
-    } else {
-        $_SESSION['error'] = "Sign up failed";
-        execute("window.location.href='signup.php'");
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -188,6 +159,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+    <?php
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $username = $_POST["username"];
+        $password = $_POST["password"];
+        $cpassword = $_POST["cpassword"];
+
+        debug_log("Username: $username");
+        debug_log("Password: $password");
+        debug_log("Confirm Password: $cpassword");
+
+        // Validating
+        if ($password != $cpassword) {
+            $_SESSION['error'] = "Passwords do not match";
+        } else {
+            $sql = "INSERT INTO pengguna (nama_pengguna, kata_laluan) VALUES (?, ?)";
+            try {
+                $result = $conn->execute_query($sql, [$username, $password]);
+
+                // Check if the query is successful
+                if ($result) {
+                    $_SESSION['success'] = "Sign up successful";
+                    execute("window.location.href='login.php'");
+                } else {
+                    $_SESSION['error'] = "Sign up failed";
+                }
+            } catch (Exception $e) {
+                if ($e->getCode() == 1062) {
+                    $_SESSION['error'] = "Username already exists";
+                } else {
+                    $_SESSION['error'] = "An error occurred";
+                }
+            }
+        }
+    }
+    ?>
+
     <div class="background">
         <div class="shape"></div>
         <div class="shape"></div>
@@ -196,8 +203,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <?php
         if (isset($_SESSION['error'])) {
-            debug_log("Error: " . $_SESSION['error']);
             echo "<div class='error-message'>" . $_SESSION['error'] . "</div>";
+            execute("alert('" . $_SESSION['error'] . "')");
             unset($_SESSION['error']);
         }
         ?>
@@ -214,10 +221,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="password" placeholder="Retype your password" id="cpassword" name="cpassword" required>
 
         <button type="submit">Sign up</button>
-        <!-- <div class="social">
-            <div class="go"><i class="fab fa-google"></i> Google</div>
-            <div class="fb"><i class="fab fa-facebook"></i> Facebook</div>
-        </div> -->
     </form>
 </body>
 

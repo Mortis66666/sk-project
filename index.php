@@ -76,7 +76,7 @@
 
     // Check if version >= 8.2.0
 
-    if (version_compare($version, '8.2.0') >= 0) {
+    if (version_compare($version, '8.2.0', '<')) {
         execute("alert('You are using php version $version, but version 8.2.0 is required')");
     }
 
