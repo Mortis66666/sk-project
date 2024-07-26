@@ -4,6 +4,9 @@ $username = "root";
 $password = "";
 $database = "database";
 
+// Set timezone
+date_default_timezone_set("Asia/Kuala_Lumpur");
+
 // Create a connection
 $conn = new mysqli($servername, $username, $password, $database);
 
