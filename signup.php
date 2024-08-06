@@ -172,9 +172,9 @@ include("debug.php");
         // Validating
         if ($password != $cpassword) {
             $_SESSION['error'] = "Passwords do not match";
-        } else if (sizeof($username) < 5) {
+        } else if (strlen($username) < 5) {
             $_SESSION['error'] = "Username must be at least 5 characters";
-        } else if (sizeof($username) > 20) {
+        } else if (strlen($username) > 20) {
             $_SESSION['error'] = "Username must be at most 20 characters";
         } else {
             $sql = "INSERT INTO pengguna (nama_pengguna, kata_laluan) VALUES (?, ?)";
