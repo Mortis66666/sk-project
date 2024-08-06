@@ -2,11 +2,7 @@
 session_start();
 include("database.php");
 include("debug.php");
-
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    die();
-}
+include("check_user.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
     if (!isset($_GET['cid']) || !isset($_GET['uid'])) {
@@ -173,7 +169,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             height: 100px;
             background:
                 radial-gradient(closest-side, white 79%, transparent 80% 100%),
-                conic-gradient(yellow var(--percentage), yellowgreen 0);
+                conic-gradient(green var(--percentage), skyblue 0);
             width: 150px;
             height: 150px;
             border-radius: 50%;
