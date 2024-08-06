@@ -1,1 +1,3 @@
 .vscode
+*.sql
+config.json

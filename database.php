@@ -1,8 +1,12 @@
 <?php
+
+$config_file = file_get_contents("config.json");
+$config = json_decode($config_file, true);
+
 $servername = "localhost";
 $username = "root";
 $password = "";
-$database = "database";
+$database = $config["database"];
 
 // Set timezone
 date_default_timezone_set("Asia/Kuala_Lumpur");
