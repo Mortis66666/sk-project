@@ -44,7 +44,15 @@ $query =
         p.id_pengguna AS id,
         p.nama_pengguna AS name,
         kp.peranan as role,
-        COALESCE(MAX(DATEDIFF(CURDATE(), k.masa_daftar) <= 1), 0) AS attended
+        COALESCE(
+            MAX(
+                CASE 
+                    WHEN DATEDIFF(CURDATE(), k.masa_daftar) = 0 THEN 1 -- return 1 if it's today
+                    ELSE 0 -- return 0 if it's not today
+                END
+            ), 
+            0 -- return 0 if there's no attendance
+        ) AS attended
     FROM
         pengguna p
     INNER JOIN
